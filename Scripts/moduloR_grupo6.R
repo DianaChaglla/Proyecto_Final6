@@ -11,7 +11,11 @@ balances_2014 <- read.xlsx("Data/proyecto_final/balances_2014.xlsx")
 ciiu <- read.xlsx("Data/proyecto_final/ciiu.xlsx")
 
 #Limpieza de datos ----
+<<<<<<< HEAD
+#imputamos los datos con información faltante 
+=======
 #impute los NAs
+>>>>>>> 4e2793696d9f88d38b27347faf24da4d04bbfd24
 balances_2014 <- balances_2014 %>% na.omit()
 
 #exploracion de datos ----
@@ -28,6 +32,7 @@ balances_tbl <- balances_2014 %>% select(nombre_cia,
                                          provincia,
                                          canton,
                                          ciudad,
+                                         tamanio,
                                          ciiu4_nivel1,
                                          ciiu4_nivel6, 
                                          v345,
@@ -68,6 +73,8 @@ balances_tbl <- balances_tbl %>% na.omit() #vuelvo a omitir NAs
 
 empresas <- as_tibble(balances_tbl)
 
+<<<<<<< HEAD
+=======
 ##Respuestas pregunta 2
 ## Empresas con mayor apalancamiento ----
 Top10_A <- empresas %>% select(nombre_cia, 
@@ -104,3 +111,4 @@ empresas_plot3 %>% ggplot(aes(x = provincia, y = Liquidez_corrienteT, fill = sit
 ## Natashas Calle ----
 
 
+>>>>>>> 4e2793696d9f88d38b27347faf24da4d04bbfd24
