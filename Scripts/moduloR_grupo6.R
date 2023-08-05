@@ -81,6 +81,12 @@ Top10_A <- empresas %>% select(nombre_cia,
                             arrange(desc(Total_Apalancamiento)) %>%
                             head(n=10)
 
+Top10_A %>% ggplot(aes(x = fct_reorder(nombre_cia, Total_Apalancamiento), y = Total_Apalancamiento, fill = nombre_cia)) +
+            geom_col() +
+            coord_flip() +
+            labs(title = "TOP 10 Empresar con Apalancamiento mas alto", x = "Compania", y = "Apalancamiento") +
+            theme(legend.position = 'none')
+
 ## graficas
 ##Liquidez y solvencia por situacion y provincia
 empresas_plot3 <- empresas %>% group_by(provincia, situacion) %>%
