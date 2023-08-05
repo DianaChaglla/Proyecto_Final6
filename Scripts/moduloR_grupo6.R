@@ -4,13 +4,18 @@ library(magrittr)
 library(dplyr)
 library(tidyverse)
 library(readxl)
+library(ggplot2)
 
 #Importacion de datos -----
 balances_2014 <- read.xlsx("Data/proyecto_final/balances_2014.xlsx")
 ciiu <- read.xlsx("Data/proyecto_final/ciiu.xlsx")
 
 #Limpieza de datos ----
+<<<<<<< HEAD
 #imputamos los datos con información faltante 
+=======
+#impute los NAs
+>>>>>>> 4e2793696d9f88d38b27347faf24da4d04bbfd24
 balances_2014 <- balances_2014 %>% na.omit()
 
 #exploracion de datos ----
@@ -24,6 +29,7 @@ balances_tbl <- balances_2014 %>% select(nombre_cia,
                                          situacion,
                                          tipo,
                                          pais,
+                                         provincia,
                                          canton,
                                          ciudad,
                                          tamanio,
@@ -61,5 +67,41 @@ balances_tbl <- balances_tbl %>% mutate(Activo = Activos_Corrientes + Activos_No
                                         Apalancamiento = Activo / Patrimonio) %>%
   view("final")
 
+balances_tbl[sapply(balances_tbl, is.infinite)] <- NA #Reemplazo todos los inf que me dan por la division por 0
+balances_tbl <- balances_tbl %>% na.omit() #vuelvo a omitir NAs
+
+
 empresas <- as_tibble(balances_tbl)
 
+<<<<<<< HEAD
+=======
+##Respuestas pregunta 2
+## Empresas con mayor apalancamiento ----
+Top10_A <- empresas %>% select(nombre_cia, 
+                                   situacion,
+                                   Actividad_Economica, 
+                                   pais,
+                                   ciudad,
+                                   Apalancamiento) %>%
+                            group_by(nombre_cia) %>%
+                            summarise(Total_Apalancamiento = sum(Apalancamiento)) %>%
+                            arrange(desc(Total_Apalancamiento)) %>%
+                            head(n=10)
+
+## graficas
+##Liquidez y solvencia por situacion y provincia
+empresas_plot3 <- empresas %>% group_by(provincia, situacion) %>%
+                               summarise(Liquidez_corrienteT = sum(Liquidez_corriente),
+                                         Endeudamiento_activoT = sum(Endeundamiento_activo),
+                                         Endeudamiento_patrimonialT = sum(Endeudamiento_patrimonial),
+                                         Endeudamiento_del_activo_fijoT = sum(Endeudamiento_del_activo_fijo),
+                                         ApalancamientoT = sum(Apalancamiento)
+                                         )
+
+#por terminar
+empresas_plot3 %>% ggplot(aes(x = provincia, y = Liquidez_corrienteT, fill = situacion)) +
+                   geom_col() 
+                                         
+                            
+
+>>>>>>> 4e2793696d9f88d38b27347faf24da4d04bbfd24
