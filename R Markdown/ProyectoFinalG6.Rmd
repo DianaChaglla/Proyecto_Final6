@@ -15,7 +15,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r library, message = FALSE}
+```{r library, message = FALSE, warning=FALSE}
 library(openxlsx)
 library(magrittr)
 library(dplyr)
@@ -28,15 +28,87 @@ library(ggplot2)
 
 You can also embed plots, for example:
 
-```{r import, echo=FALSE}
+```{r import, include=FALSE}
 balances_2014 <- read.xlsx("Data/proyecto_final/balances_2014.xlsx")
 ciiu <- read.xlsx("Data/proyecto_final/ciiu.xlsx")
-balances_2014
-ciiu
 ```
 
-
-
 ## 3. Análisis
+Tibble empresas
+```{r creacion_tbl, include=FALSE}
+#Limpieza de datos ----
+#impute los NAs
+balances_2014 <- balances_2014 %>% na.omit()
+
+#exploracion de datos ----
+summary(balances_2014)
+str(balances_2014)
+dim(balances_2014)
+
+# creacion de tibble ----
+# seleccion de variables
+balances_tbl <- balances_2014 %>% select(nombre_cia, 
+                                         situacion,
+                                         tipo,
+                                         pais,
+                                         provincia,
+                                         canton,
+                                         ciudad,
+                                         ciiu4_nivel1,
+                                         ciiu4_nivel6, 
+                                         v345,
+                                         v539,
+                                         v498,
+                                         v569,
+                                         v698) 
+
+#union de tabla
+balances_tbl <- balances_tbl %>% left_join(ciiu, by = c("ciiu4_nivel1" = "CODIGO")) %>%
+                                 left_join(ciiu, by = c("ciiu4_nivel6" = "CODIGO")) %>%
+                                 view()
+
+#renaming variables
+balances_tbl <- balances_tbl %>% rename("Activos_Corrientes" = "v345",
+                                        "Pasivos_Corrientes" = "v539",
+                                        "Activos_NoCorrientes" = "v498",
+                                        "Pasivos_NoCorrientes" = "v569",
+                                        "Patrimonio" = "v698",
+                                        "Actividad_Economica" = "DESCRIPCION.x",
+                                        "Nivel1" = "NIVEL.x",
+                                        "Subactividad" = "DESCRIPCION.y",
+                                        "Nivel6" = "NIVEL.y")
+
+#mutate para crear variables 
+balances_tbl <- balances_tbl %>% mutate(Activo = Activos_Corrientes + Activos_NoCorrientes,
+                                        Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
+                                        Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
+                                        Endeundamiento_activo = Pasivo / Activo,
+                                        Endeudamiento_patrimonial = Pasivo / Patrimonio,
+                                        Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
+                                        Apalancamiento = Activo / Patrimonio) 
+
+balances_tbl[sapply(balances_tbl, is.infinite)] <- NA #Reemplazo todos los inf que me dan por la division por 0
+balances_tbl <- balances_tbl %>% na.omit() #vuelvo a omitir NAs
+```
+
+```{r empresas, echo=FALSE}
+empresas <- as_tibble(balances_tbl)
+empresas
+```
+
+Respuesta pregunta 2.3
+```{r TOP10, echo=FALSE}
+Top10_A <- empresas %>% select(nombre_cia, 
+                                   situacion,
+                                   Actividad_Economica, 
+                                   pais,
+                                   ciudad,
+                                   Apalancamiento) %>%
+                            group_by(nombre_cia) %>%
+                            summarise(Total_Apalancamiento = sum(Apalancamiento)) %>%
+                            arrange(desc(Total_Apalancamiento)) %>%
+                            head(n=10)
+Top10_A
+```
 
 ## 4. Conclusión
