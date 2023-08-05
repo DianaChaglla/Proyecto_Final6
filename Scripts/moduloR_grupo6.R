@@ -101,5 +101,6 @@ empresas_plot3 <- empresas %>% group_by(provincia, situacion) %>%
 empresas_plot3 %>% ggplot(aes(x = provincia, y = Liquidez_corrienteT, fill = situacion)) +
                    geom_col() 
                                          
-                            
+## Natashas Calle ----
+
 
