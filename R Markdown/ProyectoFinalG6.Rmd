@@ -96,7 +96,7 @@ empresas <- as_tibble(balances_tbl)
 empresas
 ```
 
-Respuesta pregunta 2.3
+Respuesta pregunta 2.3 me falta el grafico
 ```{r TOP10, echo=FALSE}
 Top10_A <- empresas %>% select(nombre_cia, 
                                    situacion,
