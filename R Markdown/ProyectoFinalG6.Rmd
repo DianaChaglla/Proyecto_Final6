@@ -15,8 +15,13 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r library, message = FALSE}
+library(openxlsx)
+library(magrittr)
+library(dplyr)
+library(tidyverse)
+library(readxl)
+library(ggplot2)
 ```
 
 ## 2. Datos
@@ -26,9 +31,11 @@ You can also embed plots, for example:
 ```{r import, echo=FALSE}
 balances_2014 <- read.xlsx("Data/proyecto_final/balances_2014.xlsx")
 ciiu <- read.xlsx("Data/proyecto_final/ciiu.xlsx")
+balances_2014
+ciiu
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
 
 ## 3. Análisis
 
