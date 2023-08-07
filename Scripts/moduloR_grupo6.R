@@ -79,12 +79,10 @@ Top10_A <- empresas %>% select(Compania,
                                pais,
                                ciudad,
                                Apalancamiento) %>%
-  group_by(Compania) %>%
-  summarise(Total_Apalancamiento = sum(Apalancamiento)) %>%
-  arrange(desc(Total_Apalancamiento)) %>%
-  head(n=10)
+                        arrange(desc(Apalancamiento)) %>%
+                        head(n=10)
 
-Top10_A %>% ggplot(aes(x = fct_reorder(Compania, Total_Apalancamiento), y = Total_Apalancamiento, fill = Compania)) +
+Top10_A %>% ggplot(aes(x = fct_reorder(Compania, Apalancamiento), y = Apalancamiento, fill = Compania)) +
   geom_col() +
   coord_flip() +
   labs(title = "TOP 10 Empresas con Apalancamiento mas alto", x = "Compania", y = "Apalancamiento") +
@@ -141,3 +139,88 @@ A <- empresas %>% ggplot(aes(x = provincia, y = Apalancamiento, fill = Status)) 
 A
 
 ## Natasha Calle ----
+
+
+
+## Lissette Pita codigo ----
+balances_tblL <- balances_2014 %>% select(nombre_cia, 
+                                         situacion,
+                                         tipo,
+                                         pais,
+                                         provincia,
+                                         canton,
+                                         ciudad,
+                                         trab_direc,
+                                         trab_admin,
+                                         ciiu4_nivel1,
+                                         ciiu4_nivel6, 
+                                         v345,
+                                         v539,
+                                         v498,
+                                         v569,
+                                         v698) 
+
+#renaming variables
+balances_tblL <- balances_tblL %>% rename("Activos_Corrientes" = "v345",
+                                        "Pasivos_Corrientes" = "v539",
+                                        "Activos_NoCorrientes" = "v498",
+                                        "Pasivos_NoCorrientes" = "v569",
+                                        "Patrimonio" = "v698",
+                                        "Status" = "situacion", 
+                                        "Compania" = "nombre_cia")
+
+#mutate para crear variables 
+balances_tblL <- balances_tblL %>% mutate(Activo = Activos_Corrientes + Activos_NoCorrientes,
+                                        Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
+                                        Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
+                                        Endeundamiento_activo = Pasivo / Activo,
+                                        Endeudamiento_patrimonial = Pasivo / Patrimonio,
+                                        Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
+                                        Apalancamiento = Activo / Patrimonio) %>%
+  view("final")
+
+balances_tblL[sapply(balances_tblL, is.infinite)] <- NA #Reemplazo todos los inf que me dan por la division por 0
+balances_tblL <- balances_tblL %>% na.omit() #vuelvo a omitir NAs
+
+
+empresasL <- as_tibble(balances_tblL)
+
+# Agrupo y calculo la liquidez corriente para cada compañía
+empresas_com <- empresasL %>% 
+                group_by(Compania) %>%
+                summarise(Liquidez_corriente = sum(Liquidez_corriente, na.rm = TRUE),
+                          Total_trabajadores_directos = sum(trab_direc),
+                          Total_trabajadores_administrativos = sum(trab_admin)) 
+
+
+#Comparo las empresa como trabajadores 
+empresas_mayor_60_directos <- empresas_com %>% filter(Total_trabajadores_directos > 60)
+
+empresas_100_800_administrativos <- empresas_com %>%
+  filter(Total_trabajadores_administrativos >= 100 & Total_trabajadores_administrativos <= 800)
+
+#como quiero cvarios grupo utilizo el t-anova  estadisticamente.
+liq_Company<- aov(Liquidez_corriente ~ factor(grupo), 
+                  data = bind_rows(empresas_mayor_60_directos %>% mutate(grupo = "Más de 60 Directos"),
+                                   empresas_100_800_administrativos %>% mutate(grupo = "100 a 800 Administrativos")))
+
+# Gráfico de barras para la liquidez
+ggplot(empresasL, aes(x = tipo, y = Liquidez_corriente)) +
+  geom_bar(stat = "identity", position = "dodge", fill = "blue") + 
+  labs(title = "Comparativo de Liquidez por Tipo de Empresa",
+       x = "Tipo de Empresa",
+       y = "Liquidez Corriente")
+
+# Gráfico de barras para la solvencia
+ggplot(empresasL, aes(x = tipo, y = Endeundamiento_activo)) +
+  geom_bar(stat = "identity", position = "dodge", fill = "red") +
+  labs(title = "Comparativo de Solvencia por Tipo de Empresa",
+       x = "Tipo de Empresa",
+       y = "Endeudamiento del Activo")
+
+#relación entre los indicadores de liquidez y solvencia para cada empresa
+
+ggplot(empresasL, aes(x = Liquidez_corriente, y = Endeundamiento_activo, color = tipo)) +
+  geom_point() + labs(title = "Comparativo de Liquidez y Solvencia por Tipo de Empresa",
+                      x = "Liquidez Corriente",
+                      y = "Endeudamiento del Activo")
