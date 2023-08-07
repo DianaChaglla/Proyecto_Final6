@@ -1,3 +1,7 @@
+#Diana Chaglla
+#Natasha Calle
+#Lissette Pita
+
 #cargar paquetes ----
 library(openxlsx)
 library(magrittr)
