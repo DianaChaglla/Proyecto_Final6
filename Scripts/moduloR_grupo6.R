@@ -287,11 +287,15 @@ ggplot(empresasL, aes(x = tipo, y = Endeundamiento_activo)) +
   geom_bar(stat = "identity", position = "dodge", fill = "red") +
   labs(title = "Comparativo de Solvencia por Tipo de Empresa",
        x = "Tipo de Empresa",
-       y = "Endeudamiento del Activo")
+       y = "Endeudamiento del Activo") +
+  theme(axis.text.x = element_text(size=5,angle = 45, hjust = 1))
 
 #relación entre los indicadores de liquidez y solvencia para cada empresa
 
 ggplot(empresasL, aes(x = Liquidez_corriente, y = Endeundamiento_activo, color = tipo)) +
   geom_point() + labs(title = "Comparativo de Liquidez y Solvencia por Tipo de Empresa",
                       x = "Liquidez Corriente",
-                      y = "Endeudamiento del Activo")
+                      y = "Endeudamiento del Activo") +
+  theme(legend.position = "bottom")
+
+
