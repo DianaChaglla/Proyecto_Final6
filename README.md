@@ -4,4 +4,4 @@
 3. En la carpeta *R Mackdown* esta el archivo *.Rmd* con el desarrollo del pdf y el pdf con el nombre *ProyectoFinalG6*.
 
 **Nota Importante**
-Lissette Pita no pudo importar la base de datos balances_2014 debido a problemas de memoria de su computadora, por lo que nos reunimos para probar su codigo desde el PC de Diana Chaglla y lo subimos a GitHub desde ahi.  
+Lissette Pita no pudo importar la base de datos balances_2014 debido a problemas de memoria de su computadora, por lo que nos reunimos para probar su codigo desde el PC de Diana Chaglla y lo subimos a GitHub desde ahi. También tuvimos problemas con el GitHub de Natasha por lo que en una sesión por Zoom editamos entre todas el script principal verificando que todo este bien.
