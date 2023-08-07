@@ -79,8 +79,8 @@ Top10_A <- empresas %>% select(Compania,
                                pais,
                                ciudad,
                                Apalancamiento) %>%
-                        arrange(desc(Apalancamiento)) %>%
-                        head(n=10)
+  arrange(desc(Apalancamiento)) %>%
+  head(n=10)
 
 Top10_A %>% ggplot(aes(x = fct_reorder(Compania, Apalancamiento), y = Apalancamiento, fill = Compania)) +
   geom_col() +
@@ -140,44 +140,44 @@ A
 
 ## Natasha Calle ----
 balances_tblN <- balances_2014 %>% select(nombre_cia, 
-                                         situacion,
-                                         tipo,
-                                         tamanio,
-                                         pais,
-                                         provincia,
-                                         canton,
-                                         ciudad,
-                                         ciiu4_nivel1,
-                                         ciiu4_nivel6, 
-                                         v345,
-                                         v539,
-                                         v498,
-                                         v569,
-                                         v698) 
+                                          situacion,
+                                          tipo,
+                                          tamanio,
+                                          pais,
+                                          provincia,
+                                          canton,
+                                          ciudad,
+                                          ciiu4_nivel1,
+                                          ciiu4_nivel6, 
+                                          v345,
+                                          v539,
+                                          v498,
+                                          v569,
+                                          v698) 
 
 balances_tblN <- balances_tblN %>% left_join(ciiu, by = c("ciiu4_nivel1" = "CODIGO")) %>%
   left_join(ciiu, by = c("ciiu4_nivel6" = "CODIGO")) 
 
 balances_tblN <- balances_tblN %>% rename("Activos_Corrientes" = "v345",
-                                        "Pasivos_Corrientes" = "v539",
-                                        "Activos_NoCorrientes" = "v498",
-                                        "Pasivos_NoCorrientes" = "v569",
-                                        "Patrimonio" = "v698",
-                                        "Actividad_Economica" = "DESCRIPCION.x",
-                                        "Nivel1" = "NIVEL.x",
-                                        "Subactividad" = "DESCRIPCION.y",
-                                        "Nivel6" = "NIVEL.y",
-                                        "Status" = "situacion", 
-                                        "Compania" = "nombre_cia",
-                                        "Volumen" = "tamanio")
+                                          "Pasivos_Corrientes" = "v539",
+                                          "Activos_NoCorrientes" = "v498",
+                                          "Pasivos_NoCorrientes" = "v569",
+                                          "Patrimonio" = "v698",
+                                          "Actividad_Economica" = "DESCRIPCION.x",
+                                          "Nivel1" = "NIVEL.x",
+                                          "Subactividad" = "DESCRIPCION.y",
+                                          "Nivel6" = "NIVEL.y",
+                                          "Status" = "situacion", 
+                                          "Compania" = "nombre_cia",
+                                          "Volumen" = "tamanio")
 
 balances_tblN <- balances_tblN %>% mutate(Activo = Activos_Corrientes + Activos_NoCorrientes,
-                                        Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
-                                        Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
-                                        Endeundamiento_activo = Pasivo / Activo,
-                                        Endeudamiento_patrimonial = Pasivo / Patrimonio,
-                                        Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
-                                        Apalancamiento = Activo / Patrimonio)
+                                          Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
+                                          Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
+                                          Endeundamiento_activo = Pasivo / Activo,
+                                          Endeudamiento_patrimonial = Pasivo / Patrimonio,
+                                          Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
+                                          Apalancamiento = Activo / Patrimonio)
 
 balances_tblN[sapply(balances_tblN, is.infinite)] <- NA #Reemplazo todos los inf que me dan por la division por 0
 balances_tblN <- balances_tblN %>% na.omit() #vuelvo a omitir NAs
@@ -188,9 +188,9 @@ empresasN <- as_tibble(balances_tblN)
 # creación de tabla 
 
 endeudamiento_tbl <- balances_tblN %>% select(Compania, 
-                                             Volumen,
-                                             canton,
-                                             Endeudamiento_del_activo_fijo) %>%
+                                              Volumen,
+                                              canton,
+                                              Endeudamiento_del_activo_fijo) %>%
   group_by(Volumen)%>%
   summarise(Endeudamiento_del_activo_fijo = sum(Endeudamiento_del_activo_fijo), 
   )
@@ -219,39 +219,39 @@ endeudamiento_tbl %>% ggplot(aes(x = Volumen, y = Endeudamiento_del_activo_fijo,
 
 ## Lissette Pita codigo ----
 balances_tblL <- balances_2014 %>% select(nombre_cia, 
-                                         situacion,
-                                         tipo,
-                                         pais,
-                                         provincia,
-                                         canton,
-                                         ciudad,
-                                         trab_direc,
-                                         trab_admin,
-                                         ciiu4_nivel1,
-                                         ciiu4_nivel6, 
-                                         v345,
-                                         v539,
-                                         v498,
-                                         v569,
-                                         v698) 
+                                          situacion,
+                                          tipo,
+                                          pais,
+                                          provincia,
+                                          canton,
+                                          ciudad,
+                                          trab_direc,
+                                          trab_admin,
+                                          ciiu4_nivel1,
+                                          ciiu4_nivel6, 
+                                          v345,
+                                          v539,
+                                          v498,
+                                          v569,
+                                          v698) 
 
 #renaming variables
 balances_tblL <- balances_tblL %>% rename("Activos_Corrientes" = "v345",
-                                        "Pasivos_Corrientes" = "v539",
-                                        "Activos_NoCorrientes" = "v498",
-                                        "Pasivos_NoCorrientes" = "v569",
-                                        "Patrimonio" = "v698",
-                                        "Status" = "situacion", 
-                                        "Compania" = "nombre_cia")
+                                          "Pasivos_Corrientes" = "v539",
+                                          "Activos_NoCorrientes" = "v498",
+                                          "Pasivos_NoCorrientes" = "v569",
+                                          "Patrimonio" = "v698",
+                                          "Status" = "situacion", 
+                                          "Compania" = "nombre_cia")
 
 #mutate para crear variables 
 balances_tblL <- balances_tblL %>% mutate(Activo = Activos_Corrientes + Activos_NoCorrientes,
-                                        Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
-                                        Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
-                                        Endeundamiento_activo = Pasivo / Activo,
-                                        Endeudamiento_patrimonial = Pasivo / Patrimonio,
-                                        Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
-                                        Apalancamiento = Activo / Patrimonio) 
+                                          Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
+                                          Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
+                                          Endeundamiento_activo = Pasivo / Activo,
+                                          Endeudamiento_patrimonial = Pasivo / Patrimonio,
+                                          Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
+                                          Apalancamiento = Activo / Patrimonio) 
 
 balances_tblL[sapply(balances_tblL, is.infinite)] <- NA #Reemplazo todos los inf que me dan por la division por 0
 balances_tblL <- balances_tblL %>% na.omit() #vuelvo a omitir NAs
@@ -261,10 +261,10 @@ empresasL <- as_tibble(balances_tblL)
 
 # Agrupo y calculo la liquidez corriente para cada compañía
 empresas_com <- empresasL %>% 
-                group_by(Compania) %>%
-                summarise(Liquidez_corriente = sum(Liquidez_corriente, na.rm = TRUE),
-                          Total_trabajadores_directos = sum(trab_direc),
-                          Total_trabajadores_administrativos = sum(trab_admin)) 
+  group_by(Compania) %>%
+  summarise(Liquidez_corriente = sum(Liquidez_corriente, na.rm = TRUE),
+            Total_trabajadores_directos = sum(trab_direc),
+            Total_trabajadores_administrativos = sum(trab_admin)) 
 
 
 #Comparo las empresa como trabajadores 
