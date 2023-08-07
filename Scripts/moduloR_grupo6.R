@@ -192,7 +192,7 @@ endeudamiento_tbl <- balances_tblN %>% select(Compania,
                                               canton,
                                               Endeudamiento_del_activo_fijo) %>%
   group_by(Volumen)%>%
-  summarise(Endeudamiento_del_activo_fijo = sum(Endeudamiento_del_activo_fijo), 
+  summarise(Endeudamiento_del_activo_fijo = sum(Endeudamiento_del_activo_fijo) 
   )
 
 # Respuesta Item 3, consulta 1 - Crear una tabla resumida número de empresas por actividad economica y por cantón 
@@ -214,8 +214,6 @@ endeudamiento_tbl %>% ggplot(aes(x = Volumen, y = Endeudamiento_del_activo_fijo,
   geom_bar(stat="identity") + 
   labs(title = "NIVEL DE ENDEUDAMIENTO DEL ACTIVO CLASIFICADO POR EL TAMAÑOS DE LA EMPRESA", x= "TAMAÑO DE EMPRESA", y="NIVEL DE ENDEUDAMIENTO") + 
   theme(legend.position = "none") 
-
-
 
 ## Lissette Pita codigo ----
 balances_tblL <- balances_2014 %>% select(nombre_cia, 
@@ -272,11 +270,6 @@ empresas_mayor_60_directos <- empresas_com %>% filter(Total_trabajadores_directo
 
 empresas_100_800_administrativos <- empresas_com %>%
   filter(Total_trabajadores_administrativos >= 100 & Total_trabajadores_administrativos <= 800)
-
-#como quiero cvarios grupo utilizo el t-anova  estadisticamente.
-liq_Company<- aov(Liquidez_corriente ~ factor(grupo), 
-                  data = bind_rows(empresas_mayor_60_directos %>% mutate(grupo = "Más de 60 Directos"),
-                                   empresas_100_800_administrativos %>% mutate(grupo = "100 a 800 Administrativos")))
 
 # Gráfico de barras para la liquidez
 ggplot(empresasL, aes(x = tipo, y = Liquidez_corriente)) +
