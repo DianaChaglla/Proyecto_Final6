@@ -211,7 +211,7 @@ Empresas_actividad_economica %>% ggplot(aes(x = canton, y = Cantidad, fill = Act
   coord_flip() +
   labs(title = "NÚMERO DE EMPRESAS POR ACTIVIDAD ECONOMICA Y CANTÓN", x= "CANTON", y="CANTIDAD") + 
   theme(legend.position = "bottom", axis.text.y = element_text(size = 5), legend.text = element_text(size = 5)) +
-  guides(fill = guide_legend(ncol = 3)) 
+  guides(fill = guide_legend(ncol = 2)) 
 
 #DISEÑO DEL GRAFICO 
 endeudamiento_tbl %>% ggplot(aes(x = Volumen, y = Endeudamiento_del_activo_fijo, fill = Volumen)) +
@@ -280,7 +280,8 @@ ggplot(empresasL, aes(x = tipo, y = Liquidez_corriente)) +
   geom_bar(stat = "identity", position = "dodge", fill = "blue") + 
   labs(title = "Comparativo de Liquidez por Tipo de Empresa",
        x = "Tipo de Empresa",
-       y = "Liquidez Corriente")
+       y = "Liquidez Corriente") +
+  theme(axis.text.x = element_text(size=5,angle = 45, hjust = 1))
 
 # Gráfico de barras para la solvencia
 ggplot(empresasL, aes(x = tipo, y = Endeundamiento_activo)) +

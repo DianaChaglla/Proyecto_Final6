@@ -1,7 +1,7 @@
 ---
 title: "Proyecto Final 6"
-author: "Diana Chaglla, Lissette Pita, Natasha Calle"
-date: "2023-08-05"
+author: "Natasha Calle, Diana Chaglla, Lissette Pita"
+date: "2023-08-06"
 output: pdf_document
 ---
 
@@ -9,41 +9,67 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## 1. Introducción
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r library, message = FALSE, warning=FALSE}
+```{r library, include = FALSE, message = FALSE, warning=FALSE}
 library(openxlsx)
 library(magrittr)
 library(dplyr)
 library(tidyverse)
 library(readxl)
 library(ggplot2)
+library(patchwork)
 ```
 
-## 2. Datos
+## 1. Introducción
 
-You can also embed plots, for example:
+Los ratios o indicadores financieros son herramientas que cualquier director financiero utiliza para analizar la situación de su empresa. Gracias al análisis de ratios se puede saber si una compañía se ha gestionado bien o mal. Se pueden hacer proyecciones económico-financieras bien fundamentadas para mejorar la toma de decisiones. Y a su vez, se asegura una gestión de inventarios óptima. (Holded, 2021).
+
+En el marco de este proyecto colaborativo, hemos llevado a cabo un análisis de datos financieros utilizando la plataforma R, gracias a los conocimientos adquiridos en este módulo de estudio dentro del programa New Dimensions a cargo del Laboratorio de Investigación para el desarrollo del Ecuador. Nuestro enfoque se centró en el conjunto de datos "balances_2014", el cual constituye la base de nuestra investigación. A lo largo de este proyecto, exploramos diversas facetas de las finanzas corporativas, con el objetivo de desentrañar patrones y tendencias que arrojen luz sobre el endeudamiento del activo, la liquidez y otros aspectos relevantes en el ámbito empresarial.
+
+Nuestra labor implicará no solo una descripción detallada del contenido y estructura del "balances_2014", sino también la realización de análisis para responder a cuestiones de investigación fundamentales. Mediante scripts descubriremos la relación entre la solvencia y la liquidez, segmentando los resultados según los requerimientos lo que nos permitirá obtener una visión integral de las dinámicas financieras en diferentes sectores. En esta presentación final del trabajo, se compartirán los resultados más relevantes y las conclusiones a las que hemos llegado a lo largo de este proyecto mediante la implementación de la herramienta R-Markdown.
+
+Nuestro análisis ha sido guiado por el deseo de demostrar todo lo aprendido en clases gracias al trabajo constante en los métodos de enseñanza por parte del laboratorio de investigación para el desarrollo del Ecuador, esperamos que los insights obtenidos contribuyan a demostrar todo lo que se puede lograr con el conocimiento como aliado en la resolución de incógnitas.
+
+## 2. Datos
 
 ```{r import, include=FALSE}
 balances_2014 <- read.xlsx("Data/proyecto_final/balances_2014.xlsx")
 ciiu <- read.xlsx("Data/proyecto_final/ciiu.xlsx")
+codebook <- read.xlsx("Data/proyecto_final/cias_codebook.xlsx")
 ```
 
+En el presente proyecto de investigación se trabaja con la data: *balances_2014* un archivo en formato xlsx dónde se presentan de forma ordenada en filas izquierda a derecha información de compañías, mostrando datos cualitativos tales como: el nombre de la compañía, situación, tipo, país, provincia, cantón y ciudad donde se desarrollan sus actividades económicas, junto al tamaño de la empresa (pequeña, mediana o grande). Asimismo, de forma cuantitativa proporciona datos que se pueden clasificar en la presente explicación entre los contables tales como efectivo y equivalentes al efectivo, inversiones corrientes, cuentas y documentos por cobrar, crédito tributario a favor, inventario de materia prima, terrenos, inmuebles, construcciones en curso, entre muchos detalles de cuentas más. Y, los de información respecto a la nómina de trabajadores y las áreas donde estos se desempeñan; administración, producción, relación directa y otros.
+
+Los datos a usar del 2014 se conforman de 347 variables medidas en 47034 observaciones, y cuenta con 233305 datos faltantes. Es importante notar que algunas de las variables tiene valor 0 en ciertas compañias lo que posteriormente nos puede ocasionar problemas en el cálculo de los indicadores financieros. Adicionalmente, el archivo excel *ciiu* tiene la descripción de las actividades y subactividades económicas, mientras que el archivo *codebook* contiene la definición de las variables en nuestra base de datos balances.
+
+```{r datos_in, echo = FALSE}
+#exploracion de datos ----
+#summary(balances_2014)
+str(balances_2014) 
+print(paste("Datos Faltantes:", sum(is.na(balances_2014))))
+str(ciiu)
+str(codebook)
+#dim(balances_2014)
+```
+Las variables seleccionadas para el cálculo de los indicadores fueron:
+
+-   v345: "Total Activos Corrientes"
+-   v539: "Total Pasivos Corrientes"
+-   v498: "Total Activos No Corrientes"
+-   v569: "Total Pasivos No Corrientes"
+-   v698: "Patrimonio Neto"
+
 ## 3. Análisis
-Tibble empresas
-```{r creacion_tbl, include=FALSE}
+
+***Tibble empresas***
+
+El tibble *empresas* fue creado a traves de una selección inicial de las variables solicitadas en los lineamientos, dos de estas variables fueron usadas como nexo entre los datos "balances_2014" y la base de datos "ciiu" previamente importadas. Las variables *Activo*, *Pasivo*, *Liquidez Corriente*, *Endeudamiento del Activo*, *Endeudamiento Patrimonial*, *Endeudamiento del Activo Fijo* y *Apalacamiento* fueron calculadas con la ayuda de la funcion mutate y con las fórmulas conocidas para obtener estos indicadores. Finalmente, como se mencionó en la descripción de los datos nuestras variables en algunas compañias tenian valores igual a 0, por lo que al momento del cálculo de los indicadores nos daba valores *Inf* como resultado, estos valores indefinidos fueron reeemplazos por *NA* y nuevamente imputados.
+
+Una vez finalizado el proceso tenemos el tibble a continuación:
+
+```{r creacion_tbl}
 #Limpieza de datos ----
 #impute los NAs
 balances_2014 <- balances_2014 %>% na.omit()
-
-#exploracion de datos ----
-summary(balances_2014)
-str(balances_2014)
-dim(balances_2014)
 
 # creacion de tibble ----
 # seleccion de variables
@@ -76,47 +102,349 @@ balances_tbl <- balances_tbl %>% rename("Activos_Corrientes" = "v345",
                                         "Actividad_Economica" = "DESCRIPCION.x",
                                         "Nivel1" = "NIVEL.x",
                                         "Subactividad" = "DESCRIPCION.y",
-                                        "Nivel6" = "NIVEL.y")
+                                        "Nivel6" = "NIVEL.y",
+                                        "Status" = "situacion", 
+                                        "Compania" = "nombre_cia")
 
 #mutate para crear variables 
-balances_tbl <- balances_tbl %>% mutate(Activo = Activos_Corrientes + Activos_NoCorrientes,
-                                        Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
-                                        Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
-                                        Endeundamiento_activo = Pasivo / Activo,
-                                        Endeudamiento_patrimonial = Pasivo / Patrimonio,
-                                        Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
-                                        Apalancamiento = Activo / Patrimonio) 
+balances_tbl <- balances_tbl %>% 
+  mutate(Activo = Activos_Corrientes + Activos_NoCorrientes,
+         Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
+         Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
+         Endeundamiento_activo = Pasivo / Activo,
+         Endeudamiento_patrimonial = Pasivo / Patrimonio,
+         Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
+         Apalancamiento = Activo / Patrimonio) 
 
-balances_tbl[sapply(balances_tbl, is.infinite)] <- NA #Reemplazo todos los inf que me dan por la division por 0
-balances_tbl <- balances_tbl %>% na.omit() #vuelvo a omitir NAs
+#Reemplazo todos los inf que me dan por la division por 0
+balances_tbl[sapply(balances_tbl, is.infinite)] <- NA 
+
+#vuelvo a omitir NAs
+balances_tbl <- balances_tbl %>% na.omit() 
 ```
 
-```{r empresas, echo=FALSE}
+```{r empresas}
 empresas <- as_tibble(balances_tbl)
 empresas
 ```
 
-Respuesta pregunta 2.3
+El tibble *empresas* fue utilizado como base para responder las preguntas de investigación, añadiendo variables en el caso de que sea necesario.
+
+```{r creacion_tblNat, include=FALSE}
+balances_tblN <- balances_2014 %>% select(nombre_cia, 
+                                          situacion,
+                                          tipo,
+                                          tamanio,
+                                          pais,
+                                          provincia,
+                                          canton,
+                                          ciudad,
+                                          ciiu4_nivel1,
+                                          ciiu4_nivel6, 
+                                          v345,
+                                          v539,
+                                          v498,
+                                          v569,
+                                          v698) 
+
+balances_tblN <- balances_tblN %>% left_join(ciiu, by = c("ciiu4_nivel1" = "CODIGO")) %>%
+  left_join(ciiu, by = c("ciiu4_nivel6" = "CODIGO")) 
+
+balances_tblN <- balances_tblN %>% rename("Activos_Corrientes" = "v345",
+                                          "Pasivos_Corrientes" = "v539",
+                                          "Activos_NoCorrientes" = "v498",
+                                          "Pasivos_NoCorrientes" = "v569",
+                                          "Patrimonio" = "v698",
+                                          "Actividad_Economica" = "DESCRIPCION.x",
+                                          "Nivel1" = "NIVEL.x",
+                                          "Subactividad" = "DESCRIPCION.y",
+                                          "Nivel6" = "NIVEL.y",
+                                          "Status" = "situacion", 
+                                          "Compania" = "nombre_cia",
+                                          "Volumen" = "tamanio")
+
+balances_tblN <- balances_tblN %>% mutate(Activo = Activos_Corrientes + Activos_NoCorrientes,
+                                          Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
+                                          Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
+                                          Endeundamiento_activo = Pasivo / Activo,
+                                          Endeudamiento_patrimonial = Pasivo / Patrimonio,
+                                          Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
+                                          Apalancamiento = Activo / Patrimonio)
+
+balances_tblN[sapply(balances_tblN, is.infinite)] <- NA #Reemplazo todos los inf que me dan por la division por 0
+balances_tblN <- balances_tblN %>% na.omit() #vuelvo a omitir NAs
+```
+
+```{r empresasNat, echo=FALSE}
+empresasN <- as_tibble(balances_tblN)
+```
+
+-   ***¿El endeudamiento del activo fue mayor en empresas micro + pequeñas vs grandes?***
+
+Para poder contestar esta pregunta en primer lugar se creó la tabla "endeudamiento_tbl" en R, cargando los datos de balances_tbl, se calculó el endeudamiento del activo fijo para cada una de ellas. Luego, se agruparon estas empresas por su tamaño (grandes, medianas, pequeñas, micros y no definidas) y así se calculó el endeudamiento promedio para cada grupo. Como se muestra a continuación:
+
+```{r end_tbl}
+endeudamiento_tbl <- balances_tblN %>% select(Compania, 
+                                              Volumen,
+                                              canton,
+                                              Endeudamiento_del_activo_fijo) %>%
+  group_by(Volumen)%>%
+  summarise(Endeudamiento_del_activo_fijo = sum(Endeudamiento_del_activo_fijo))
+
+endeudamiento_tbl
+```
+
+En el script desarrollado anteriormente, primero se calcula el endeudamiento promedio del activo fijo para cada tamaño de empresa y se almacena en la tabla "endeudamiento_tbl". Luego, se utiliza la librería ggplot2 para crear un gráfico de barras que muestra visualmente la diferencia en los niveles de endeudamiento entre las empresas agrupadas por su tamaño.
+
+Dentro de la elaboración del gráfico se utilizó **ggplot()**, especificando que el dataframe a utilizar es "endeudamiento_tbl" y asignando las variables "volumen" y "endeudamiento_del_activo_fijo" a los ejes X e Y, respectivamente. Se utilizó geom_bar(), para crear el gráfico de barras, se configuró el aspecto del gráfico con labs() para agregar títulos a los ejes X e Y y un título general al gráfico. Finalmente, se aplicó un tema específico usando theme() para tener un diseño limpio y claro del gráfico.
+
+```{r plottamanio, fig.width=10, fig.height=5}
+#DISEÑO DEL GRAFICO 
+endeudamiento_tbl %>% ggplot(aes(x = Volumen, y = Endeudamiento_del_activo_fijo, fill = Volumen)) +
+  geom_bar(stat="identity") + 
+  labs(title = "Nivel de endeudamiento del activo clasificado por el tamaño de la empresa", 
+       x= "TAMAÑO DE EMPRESA", 
+       y="NIVEL DE ENDEUDAMIENTO") + 
+  theme(legend.position = "none") 
+```
+
+Así que, una vez se obtienen todas estas herramientas (tabla y gráfica) se puede llegar a la conclusión de que el endeudamiento en las empresas pequeñas y micros es superior en comparación al endeudamiento de las empresas grandes.
+
+Continuando con la lógica implementada en el desarrollo del script para la resolución de la pregunta de investigación previa, se resolvieron el resto preguntas de investigación.
+
+-   ***¿La liquidez por tipo de compañía es diferente entre aquellas empresas que tienen más de 60 trabajadores directos y que cuenta con 100 a 800 trabajadores administrativos?***
+
+```{r tbl_Liss, include=FALSE}
+balances_tblL <- balances_2014 %>% select(nombre_cia, 
+                                          situacion,
+                                          tipo,
+                                          pais,
+                                          provincia,
+                                          canton,
+                                          ciudad,
+                                          trab_direc,
+                                          trab_admin,
+                                          ciiu4_nivel1,
+                                          ciiu4_nivel6, 
+                                          v345,
+                                          v539,
+                                          v498,
+                                          v569,
+                                          v698) 
+
+#renaming variables
+balances_tblL <- balances_tblL %>% rename("Activos_Corrientes" = "v345",
+                                          "Pasivos_Corrientes" = "v539",
+                                          "Activos_NoCorrientes" = "v498",
+                                          "Pasivos_NoCorrientes" = "v569",
+                                          "Patrimonio" = "v698",
+                                          "Status" = "situacion", 
+                                          "Compania" = "nombre_cia")
+
+#mutate para crear variables 
+balances_tblL <- balances_tblL %>% 
+  mutate(Activo = Activos_Corrientes + Activos_NoCorrientes,
+         Pasivo = Pasivos_Corrientes + Pasivos_NoCorrientes,
+         Liquidez_corriente = Activos_Corrientes/Pasivos_Corrientes,
+         Endeundamiento_activo = Pasivo / Activo,
+         Endeudamiento_patrimonial = Pasivo / Patrimonio,
+         Endeudamiento_del_activo_fijo = Patrimonio / Activos_NoCorrientes,
+         Apalancamiento = Activo / Patrimonio) 
+
+#Reemplazo todos los inf que me dan por la division por 0
+balances_tblL[sapply(balances_tblL, is.infinite)] <- NA 
+
+#vuelvo a omitir NAs
+balances_tblL <- balances_tblL %>% na.omit() 
+```
+
+```{r empresasLiss, echo=FALSE}
+empresasL <- as_tibble(balances_tblL)
+```
+
+```{r compa1, include=FALSE}
+# Agrupo y calculo la liquidez corriente para cada compañía
+empresas_com <- empresasL %>% 
+  group_by(Compania) %>%
+  summarise(Liquidez_corriente = sum(Liquidez_corriente, na.rm = TRUE),
+            Total_trabajadores_directos = sum(trab_direc),
+            Total_trabajadores_administrativos = sum(trab_admin)) 
+```
+
+Se recopilo los datos en tablas sobre estas empresas, que incluyeron su situación, tipo, ubicación e indicadores financieros clave como la liquidez corriente, se procedió a dividirlas en estos dos grupos según la cantidad de trabajadores, como se muestras en las siguientes tablas:
+
+```{r filtertocomp1, echo=FALSE}
+#Comparo las empresa como trabajadores 
+empresas_mayor_60_directos <- empresas_com %>% filter(Total_trabajadores_directos > 60)
+
+empresas_100_800_administrativos <- empresas_com %>%
+  filter(Total_trabajadores_administrativos >= 100 & Total_trabajadores_administrativos <= 800)
+
+empresas_mayor_60_directos
+empresas_100_800_administrativos
+```
+
+En base a las tablas podemos inferir que las empresas con más de 60 trabajadores directos presentan una variación notable en su liquidez en comparación con aquellas que tienen entre 100 y 800 trabajadores administrativos.
+
+-   ***Describe el top 10 de empresas con mayor apalancamiento.***
+
+Como podemos observar en la tabla y el gráfico posterior, nuestra empresa con mayor Apalancamiento es HIROAKY S.A con un apalancamiento total de 26048.29. La empresa es ecuatoriana con sede en Guayaquil, status activo y su actividad económica es la Agricultura, Ganaderia, Silvicultura y Pesca.
+
+La mayoría del TOP10 esta conformado por empresas dedicadas a la reparación de automotores y motocicletas. Lo que quiere decir que en su mayoría son las que más frecuencia tienen a endeudarse para conseguir capital de inversión.
+
 ```{r TOP10, echo=FALSE}
-Top10_A <- empresas %>% select(nombre_cia, 
-                                   situacion,
-                                   Actividad_Economica, 
-                                   pais,
-                                   ciudad,
-                                   Apalancamiento) %>%
-                            group_by(nombre_cia) %>%
-                            summarise(Total_Apalancamiento = sum(Apalancamiento)) %>%
-                            arrange(desc(Total_Apalancamiento)) %>%
-                            head(n=10)
+Top10_A <- empresas %>% select(Compania, 
+                               Status,
+                               Actividad_Economica, 
+                               pais,
+                               ciudad,
+                               Apalancamiento) %>%
+                        arrange(desc(Apalancamiento)) %>%
+                        head(n=10)
+
 Top10_A
 ```
 
-```{r plottop10, echo=FALSE, fig.width=10, fig.height=8}
-plot10 <- Top10_A %>% ggplot(aes(x = fct_reorder(nombre_cia, Total_Apalancamiento), y = Total_Apalancamiento, fill = nombre_cia)) +
-            geom_col() +
-            coord_flip() +
-            labs(title = "TOP 10 Empresar con Apalancamiento mas alto", x = "Compania", y = "Apalancamiento") +
-            theme(legend.position = 'none')
+```{r plottop10, echo=FALSE, fig.width=10, fig.height=5}
+plot10 <- Top10_A %>% ggplot(aes(x = fct_reorder(Compania, Apalancamiento), y = Apalancamiento, fill = Compania)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "TOP 10 Empresas con Apalancamiento mas alto", x = "Compania", y = "Apalancamiento") +
+  theme(legend.position = 'none')
 plot10
 ```
+
+Se realizó un análisis mas detallado siguiendo lineamentos específicos.En el script desarrollado a continuación, primero se calcula la cantidad de empresas para cada tipo de actividad económica y cantón. Luego, se realiza el gráfico de acuerdo a los resultados obtenidos. Esto con el fin de obtener el número de empresas existentes en cada cantón y sus determinadas actividades económicas.
+
+```{r 3.1}
+Empresas_actividad_economica <- empresasN %>% group_by(Actividad_Economica, canton) %>%
+  count() %>% rename("Cantidad" = "n") 
+```
+
+Acorde a la gráfica Quito y Guayaquil poseen el mayor número de empresas siendo Reparación de Vehículos y Automotores su actividad económica predominante. 
+
+```{r end_tblplot, fig.width=10, fig.height=12}
+Empresas_actividad_economica %>% 
+  ggplot(aes(x = canton, y = Cantidad, fill = Actividad_Economica)) +
+  geom_bar(stat="identity") + 
+  coord_flip() +
+  labs(title = "NÚMERO DE EMPRESAS POR ACTIVIDAD ECONOMICA Y CANTÓN", 
+       x= "CANTON", y="CANTIDAD") + 
+  theme(legend.position = "bottom", axis.text.y = element_text(size = 5),
+        legend.text = element_text(size = 5)) +
+  guides(fill = guide_legend(ncol = 2)) 
+```
+
+Para el análisis de los indicadores financieros de liquidez y solvencia en base al status y provincia se realizaron 5 gráficos usando el tibble **empresas** anteriomente creado.
+
+La gráfica de Liquidez Corriente nos muestra que la provincia de Guayas es la que presenta mayor liquidez corriente de entre todas las provincias del país con aproximadamente 40, su status predominante es Disolución Liquidación Oficio Ins. en RM.
+
+```{r LC_StatusProv, message = FALSE, fig.width=10, fig.height=5}
+
+LC <- empresas %>% ggplot(aes(x = provincia, y = Liquidez_corriente, fill = Status)) +
+  geom_bar(stat = "summary", position = "stack") +
+  labs(title = "Comparativo de Liquidez Corriente por Status y Provincia",
+       x = "Provincia", y = "Liquidez Corriente") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=5,angle = 45, hjust = 1))
+LC
+```
+
+En cuanto a la gráfica del Endeudamiento del Activo a continuación, se observa que la provincia de Los Rios es la que más se financia a traves de una deuda, seguida de cerca por Pichincha y luego por Sucumbios. El status de la provincia de Los Rios es casi igual para los 3 existentes, mientas que en Sucumbios unicámente se observan 2 Activa y Disoluc. Liquidac. Oificio Ins. en RM.
+
+Hay una semejanza entre las provincia con menor endeudamiento del activo y predomina el status Activo en ellas.
+
+```{r EA_StatusProv, message = FALSE, fig.width=10, fig.height=5}
+
+EA <- empresas %>% ggplot(aes(x = provincia, y = Endeundamiento_activo, fill = Status)) +
+  geom_bar(stat = "summary", position = "stack") +
+  labs(title = "Comparativo de Endeudamiento del Activo por Status y Provincia",
+       x = "Provincia", y = "Endeudamiento del Activo") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=5,angle = 45, hjust = 1))
+EA
+```
+
+La provincia de Los Rios vuelve a tener mayor Endeudamiento en este caso Patrimonial, esto nos indica que en las empresas con sede en Los Rios la influencia de la deuda contra el capital de los accionitas es mayor, su status permanece predominantemente Activo.
+
+Podemos observar que en el caso de Sucumbios y Tungurahua tenemos valores negativos en al menos una empresa en el área lo que quiere decir que la empresa no cuenta con financiación propia, por lo que su nivel de endeudamiento siempre va a ser excesivo.
+
+```{r EP_StatusProv, message = FALSE, fig.width=10, fig.height=5}
+
+EP <- empresas %>% ggplot(aes(x = provincia, y = Endeudamiento_patrimonial, fill = Status)) +
+  geom_bar(stat = "summary", position = "stack") +
+  labs(title = "Comparativo de Endeudamiento Patrimonial por Status y Provincia",
+       x = "Provincia", y = "Endeudamiento Patrimonial") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=5,angle = 45, hjust = 1))
+EP
+```
+
+Con respecto a la gráfica del Endeudamiento del Activo Fijo conserva bastante semejanza con la gráfica de Endeudamiento del Activo presentada previamente. En el caso específico de Guayas podría significar que la totalidad del activo fijo se pudo haber financiado con el patrimonio de la empresa, sin necesidad de préstamos de terceros.
+
+```{r EAF_StatusProv, message = FALSE, fig.width=10, fig.height=5}
+
+EAF <- empresas %>% ggplot(aes(x = provincia, y = Endeudamiento_del_activo_fijo, fill = Status)) +
+  geom_bar(stat = "summary", position = "stack") +
+  labs(title = "Comparativo de Endeudamiento del Activo Fijo por Status y Provincia",
+       x = "Provincia", y = "Endeudamiento del Activo Fijo") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=5,angle = 45, hjust = 1))
+EAF
+```
+
+En similitud a lo obtenido anteriormente vemos que Los Rios y Guayas tienen mayor Apalancamiento, esto nos muestra que las compañias localizadas en esas provincias fueron las que en su mayoria se endeudaron para invertir lo que tendría mucha relación con sus índices de endeudamiento antes analizados.
+
+En el caso de las empresas de Sucumbios y Tungurahua tenemos nuevamente valores negativos por lo que en esos casos el endeudamiento es improductivo.
+
+```{r AStatusProv, message = FALSE, fig.width=10, fig.height=5}
+A <- empresas %>% ggplot(aes(x = provincia, y = Apalancamiento, fill = Status)) +
+  geom_bar(stat = "summary", position = "stack") +
+  labs(title = "Comparativo de Apalancamiento por Status y Provincia",
+       x = "Provincia", y = "Apalancamiento") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(size=5,angle = 45, hjust = 1))
+A
+```
+
+Finalmente para el gráfico comparativo de los indicadores financieros de liquidez y solvencia por tipo de empresa. Se realizaron 3 gráficos que podemos ver a continuación:
+
+```{r 3.3, fig.width=10, fig.height=5}
+# Gráfico de barras para la liquidez
+ggplot(empresasL, aes(x = tipo, y = Liquidez_corriente)) +
+  geom_bar(stat = "identity", position = "dodge", fill = "blue") + 
+  labs(title = "Comparativo de Liquidez por Tipo de Empresa",
+       x = "Tipo de Empresa",
+       y = "Liquidez Corriente") +
+  theme(axis.text.x = element_text(size=5,angle = 45, hjust = 1))
+
+# Gráfico de barras para la solvencia
+ggplot(empresasL, aes(x = tipo, y = Endeundamiento_activo)) +
+  geom_bar(stat = "identity", position = "dodge", fill = "red") +
+  labs(title = "Comparativo de Solvencia por Tipo de Empresa",
+       x = "Tipo de Empresa",
+       y = "Endeudamiento del Activo") +
+  theme(axis.text.x = element_text(size=5,angle = 45, hjust = 1))
+
+#relación entre los indicadores de liquidez y solvencia para cada empresa
+
+ggplot(empresasL, aes(x = Liquidez_corriente, y = Endeundamiento_activo, color = tipo)) +
+  geom_point() + labs(title = "Comparativo de Liquidez y Solvencia por Tipo de Empresa",
+                      x = "Liquidez Corriente",
+                      y = "Endeudamiento del Activo") +
+  theme(legend.position = "bottom")
+```
+
+Tanto el primer gráfico como el segundo proporcionaron una visualización efectiva de las fluctuaciones en liquidez y solvencia, según el tipo de empresa. Esto facilitó la identificación de posibles patrones y tendencias significativas en los indicadores financieros analizados. En última instancia, el gráfico titulado "Comparativo de Liquidez y Solvencia por Tipo de Empresa" ofrece una representación clara de la relación entre ambos indicadores y cómo esta relación varía en función del tipo de empresa. A partir de la disposición de los puntos en el gráfico, es posible inferir la influencia potencial del tipo de empresa en la conexión entre liquidez y solvencia. Las diferencias en los patrones de dispersión entre los distintos tipos de empresas podrían señalar tendencias significativas en la relación entre estos dos indicadores financieros.
+
+
 ## 4. Conclusión
+
+Se consigue desentrañar la complejidad de la base de datos "balances_2014", proporcionando una descripción detallada y visualización de cómo está estructurada, mediante la modificación de esta base y la creación de una tabla llamada empresas fue posible cimentar nuestra base para explorar y analizar de manera efectiva los datos financieros contenidos en él.
+
+Al abordar preguntas de investigación fundamentales, examinamos de manera sistemática el endeudamiento del activo y la liquidez, categorizando las empresas por tipo y sectores económicos. A través de esta segmentación, revelamos patrones en los comportamientos financieros de diferentes compañías, lo que proporcionó una perspectiva valiosa para la toma de decisiones y estrategias empresariales.
+
+Mediante gráficos comparativos, logramos visualizar las diferencias y similitudes en los indicadores financieros, proporcionando una representación clara y accesible de los resultados. Además, cumplimos tareas específicas al generar un resumen conciso que nos proporcionó una visión geográfica y sectorial de la distribución de las empresas, lo que complementa nuestro análisis financiero con una perspectiva más amplia.
+
+Finalmente, concluimos que la limpieza de datos es primoridal para el desarrollo de un estudio porque influye directamente en los resultados obtenidos. En este proyecto se realizó imputación de datos faltantes, reemplazo de valores indefinidos por NA y nuevamente imputación. Durante este proceso probablemente se perdieron gran parte de los datos sobre compañias dándonos como resultado datos sesgados para analizar, lo que podría inferir a la hora de tomar decisiones en nuestro estudio. Pese a esto, este proyecto nos ha brindado una comprensión más profunda de los indicadores financieros y su influencia en el rendimiento empresarial.
+
